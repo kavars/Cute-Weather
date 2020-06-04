@@ -26,9 +26,7 @@ class Cute_WeatherTests: XCTestCase {
 
     func testPerformanceExample() throws {
         // This is an example of a performance test case.
-        
-        var cities: [CityCell]?
-        
+                
         let decoder = JSONDecoder()
         
 
@@ -40,16 +38,12 @@ class Cute_WeatherTests: XCTestCase {
                     let json = try String(contentsOfFile: path, encoding: .utf8)
                     let data = json.data(using: .utf8)!
                     
-                    cities = try decoder.decode([CityCell].self, from: data)
+                    let _ = try decoder.decode([CityCell].self, from: data)
                 }
             } catch {
                 print(error.localizedDescription)
                 return
             }
-        }
-        
-        if let cnt = cities?.count {
-            print(cnt)
         }
         
     }

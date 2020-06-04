@@ -13,23 +13,12 @@ class WeatherViewController: UIViewController {
     @IBOutlet weak var pageControl: UIPageControl!
     @IBOutlet weak var scrollView: UIScrollView!
     
-    @IBOutlet weak var cityLabel: UILabel!
-    @IBOutlet weak var temperatureLabel: UILabel!
-    @IBOutlet weak var feelsLikeLabel: UILabel!
-    @IBOutlet weak var humidityLabel: UILabel!
-    @IBOutlet weak var pressureLabel: UILabel!
+    var citiesID: [Int] = [524894]
+    var weatherViews: [WeatherView] = [WeatherView]()
     
-    
-//    var citiesID: [Int] = [Int](repeating: 524894, count: 1)
-    
-    let networking = Networking()
-    var city: WeatherResponse?
-    
-    // Moscow
-    var cityID = 524894
-    
+    var frame = CGRect.zero
 
-    //MARK: Navigate
+    //MARK: Navigation
     // Navigate To Cities List
     @IBAction func sitiesList(_ sender: UIButton) {
         performSegue(withIdentifier: "toCitiesList", sender: self)
@@ -39,66 +28,61 @@ class WeatherViewController: UIViewController {
     @IBAction func Done(_ unwindSegue: UIStoryboardSegue) {
         if let sourceViewController = unwindSegue.source as? SearchViewController {
             if let cityID = sourceViewController.selectCityID {
-                self.cityID = cityID
+                if !citiesID.contains(cityID) {
+                    citiesID.append(cityID)
+                    createWeatherView(index: citiesID.count - 1)
+                    pageControl.numberOfPages = citiesID.count
+                }
             }
         }
-        // get weather for new city
-        updateWeather()
     }
     
-    // get response
-    func getWeather(cityID: Int, completion: (() -> Void)?) {
-        networking.performNetworkTask(endpoint: OpenWeatherAPI.cityID(id: cityID), type: WeatherResponse.self) { [weak self] (response) in
-            self?.city = response
-            completion?()
-        }
-    }
-    
-    func updateWeather() {
-        getWeather(cityID: cityID) { [weak self] in
-            self?.updateUI()
-        }
-    }
-
     //MARK: View Controller Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        pageControl.numberOfPages = 1 //citiesID.count
-        pageControl.currentPage = 0
-        pageControl.hidesForSinglePage = true
+        pageControl.numberOfPages = citiesID.count
+        setupScreens()
         
-        configureRefreshControl()
-        updateWeather()
+        scrollView.delegate = self
+        pageControl.hidesForSinglePage = true
     }
     
-    //MARK: UIUpdate
-    func updateUI() {
-        if let city = self.city {
+    //MARK: Add new city
+    func createWeatherView(index: Int) {
+        
+        let weatherView: WeatherView = Bundle.main.loadNibNamed("WeatherView", owner: self, options: nil)?.first as! WeatherView
+        weatherView.frame.origin.x = scrollView.frame.size.width * CGFloat(index)
+        weatherView.frame.size = scrollView.frame.size
+        weatherView.configureRefreshControl()
+        
+        weatherViews.append(weatherView)
+        
+        weatherView.getWeather(cityID: citiesID[index], completion: { [weak self] in
             DispatchQueue.main.async {
-                self.cityLabel.text = city.name
-                self.temperatureLabel.text = String(Int(city.main.temp-271))
-                self.feelsLikeLabel.text = String(Int(city.main.feels_like-271))
-                self.humidityLabel.text = String(city.main.humidity)
-                self.pressureLabel.text = String(city.main.pressure)
+                if let controller = self {
+                    weatherView.updateUI()
+                    controller.scrollView.addSubview(weatherView)
+                }
             }
+        })
+        
+        scrollView.contentSize = CGSize(width: (scrollView.frame.size.width * CGFloat(citiesID.count)), height: scrollView.frame.size.height)
+    }
+    
+    //MARK: Setup at start up
+    func setupScreens() {
+        for index in 0..<citiesID.count {
+            createWeatherView(index: index)
         }
     }
+    
 }
 
-//MARK: Refresh Control
-extension WeatherViewController {
-    
-    func configureRefreshControl() {
-        scrollView.refreshControl = UIRefreshControl()
-        scrollView.refreshControl?.addTarget(self, action: #selector(handleRefreshControl), for: .valueChanged)
-    }
-    
-    @objc func handleRefreshControl() {
-        updateWeather()
-        
-        DispatchQueue.main.async {
-            self.scrollView.refreshControl?.endRefreshing()
-        }
+//MARK: UIScrollViewDelegate
+extension WeatherViewController: UIScrollViewDelegate {
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        let pageNumber = scrollView.contentOffset.x / scrollView.frame.size.width
+        pageControl.currentPage = Int(pageNumber)
     }
 }
