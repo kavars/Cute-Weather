@@ -460,7 +460,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 13.3;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
-					"@executable_path/Frameworks",
+					/usr/lib/swift,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "Kaviro.Cute-Weather";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -479,7 +479,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 13.3;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
-					"@executable_path/Frameworks",
+					/usr/lib/swift,
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "Kaviro.Cute-Weather";
 				PRODUCT_NAME = "$(TARGET_NAME)";

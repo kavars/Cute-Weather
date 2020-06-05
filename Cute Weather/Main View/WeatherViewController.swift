@@ -24,6 +24,35 @@ class WeatherViewController: UIViewController {
         performSegue(withIdentifier: "toCitiesList", sender: self)
     }
     
+    // Delete Weather View
+    @IBAction func deleteWeatherView(_ sender: UIButton) {
+        let index = pageControl.currentPage
+        
+        if index != 0 {
+            // Remove from id array
+            citiesID.remove(at: index)
+            
+            // Change content size
+            scrollView.contentSize = CGSize(width: (scrollView.frame.size.width * CGFloat(citiesID.count)), height: scrollView.frame.size.height)
+            
+            // Check view and remove it from scroll view
+            if scrollView.subviews[index] === weatherViews.remove(at: index) {
+                scrollView.subviews[index].removeFromSuperview()
+            }
+            
+            // Move all pages
+            for (indexView, weatherView) in weatherViews.enumerated() {
+                weatherView.frame.origin.x = scrollView.frame.size.width * CGFloat(indexView)
+                weatherView.frame.size = scrollView.frame.size
+            }
+            
+            // Update number of pages
+            pageControl.numberOfPages = citiesID.count
+        } else {
+            print("It's first page")
+        }
+    }
+    
     // Unwind Segue From Cities List
     @IBAction func Done(_ unwindSegue: UIStoryboardSegue) {
         if let sourceViewController = unwindSegue.source as? SearchViewController {

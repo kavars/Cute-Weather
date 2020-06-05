@@ -93,6 +93,14 @@
                                 <viewLayoutGuide key="contentLayoutGuide" id="wF7-VU-50o"/>
                                 <viewLayoutGuide key="frameLayoutGuide" id="NuK-t0-1Ls"/>
                             </scrollView>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FYU-Bu-qAr">
+                                <rect key="frame" x="16" y="741" width="37" height="37"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Del"/>
+                                <connections>
+                                    <action selector="deleteWeatherView:" destination="BYZ-38-t0r" eventType="touchUpInside" id="cLn-o4-tV5"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" systemColor="opaqueSeparatorColor" red="0.77647058820000003" green="0.77647058820000003" blue="0.7843137255" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
