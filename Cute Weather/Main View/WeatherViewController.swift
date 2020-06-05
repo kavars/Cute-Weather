@@ -61,6 +61,7 @@ class WeatherViewController: UIViewController {
                     citiesID.append(cityID)
                     createWeatherView(index: citiesID.count - 1)
                     pageControl.numberOfPages = citiesID.count
+                    pageControl.currentPage = citiesID.count - 1
                 }
             }
         }
@@ -97,6 +98,10 @@ class WeatherViewController: UIViewController {
         })
         
         scrollView.contentSize = CGSize(width: (scrollView.frame.size.width * CGFloat(citiesID.count)), height: scrollView.frame.size.height)
+        
+        // auto transmission to the new view
+        scrollView.scrollRectToVisible(weatherView.frame, animated: true)
+        
     }
     
     //MARK: Setup at start up
