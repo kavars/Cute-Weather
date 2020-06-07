@@ -13,7 +13,7 @@ class WeatherViewController: UIViewController {
     @IBOutlet weak var pageControl: UIPageControl!
     @IBOutlet weak var scrollView: UIScrollView!
     
-    var citiesID: [Int] = [524894]
+    var citiesID: [Int] = [0, 524894]
     var weatherViews: [WeatherView] = [WeatherView]()
     
     var frame = CGRect.zero
@@ -72,8 +72,12 @@ class WeatherViewController: UIViewController {
         super.viewDidLoad()
         
         pageControl.numberOfPages = citiesID.count
-        setupScreens()
         
+        createWeatherViewLocation()
+
+
+        
+        setupScreens()
         scrollView.delegate = self
         pageControl.hidesForSinglePage = true
     }
@@ -84,11 +88,17 @@ class WeatherViewController: UIViewController {
         let weatherView: WeatherView = Bundle.main.loadNibNamed("WeatherView", owner: self, options: nil)?.first as! WeatherView
         weatherView.frame.origin.x = scrollView.frame.size.width * CGFloat(index)
         weatherView.frame.size = scrollView.frame.size
-        weatherView.configureRefreshControl()
+        
         
         weatherViews.append(weatherView)
         
-        weatherView.getWeather(cityID: citiesID[index], completion: { [weak self] in
+        let weatherViewHandler = WeatherID(id: citiesID[index])
+        
+        weatherView.delegate = weatherViewHandler
+        
+        weatherView.configureRefreshControl()
+        
+        weatherView.delegate?.getWeather(weatherView, completion: { [weak self] in
             DispatchQueue.main.async {
                 if let controller = self {
                     weatherView.updateUI()
@@ -101,14 +111,38 @@ class WeatherViewController: UIViewController {
         
         // auto transmission to the new view
         scrollView.scrollRectToVisible(weatherView.frame, animated: true)
+
+    }
+    
+    func createWeatherViewLocation() {
+        let weatherView: WeatherView = Bundle.main.loadNibNamed("WeatherView", owner: self, options: nil)?.first as! WeatherView
+        weatherView.frame.origin.x = scrollView.frame.size.width * CGFloat(0)
+        weatherView.frame.size = scrollView.frame.size
         
+        weatherViews.append(weatherView)
+        
+        let weatherViewHandler = WeatherLocation()
+        weatherView.delegate = weatherViewHandler
+        
+        weatherView.configureRefreshControl()
+        
+        self.scrollView.addSubview(weatherView)
+
+        weatherView.delegate?.getWeather(weatherView) {
+            DispatchQueue.main.async {
+                weatherView.updateUI()
+            }
+        }
+                
+        scrollView.contentSize = CGSize(width: (scrollView.frame.size.width * CGFloat(citiesID.count)), height: scrollView.frame.size.height)
     }
     
     //MARK: Setup at start up
     func setupScreens() {
-        for index in 0..<citiesID.count {
+        for index in 1..<citiesID.count {
             createWeatherView(index: index)
         }
+        pageControl.currentPage = 1
     }
     
 }

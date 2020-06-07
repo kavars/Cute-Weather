@@ -18,10 +18,9 @@ class WeatherView: UIView {
     
     @IBOutlet weak var scrollView: UIScrollView!
     
-    var cityID: Int?
+    var delegate: WeatherViewDelegate?
+    
     var city: WeatherResponse?
-    let networking = Networking()
-
 
     //MARK: UIUpdate
     func updateUI() {
@@ -44,34 +43,17 @@ extension WeatherView {
         scrollView.refreshControl?.addTarget(self, action: #selector(handleRefreshControl), for: .valueChanged)
     }
     
-    @objc func handleRefreshControl() {
-        updateWeather()
+    @objc func handleRefreshControl() {        
+        delegate?.refreshControlHandler(self) {
+            DispatchQueue.main.async {
+                self.updateUI()
+            }
+        }
+        
         DispatchQueue.main.async {
             self.scrollView.refreshControl?.endRefreshing()
         }
     }
-}
-
-extension WeatherView {
-    // get response
-    func getWeather(cityID: Int, completion: (() -> Void)?) {
-        self.cityID = cityID
-        
-        networking.performNetworkTask(endpoint: OpenWeatherAPI.cityID(id: cityID), type: WeatherResponse.self) { [weak self] (response) in
-            self?.city = response
-            
-            completion?()
-        }
-    }
     
-    func updateWeather() {
-        if let id = cityID {
-            getWeather(cityID: id) {
-                DispatchQueue.main.async {
-                    self.updateUI()
-                }
-            }
-        }
-        
-    }
+    
 }
